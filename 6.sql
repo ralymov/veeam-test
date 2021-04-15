@@ -15,3 +15,13 @@ WHERE orders.date >
       (SELECT dates.date
        FROM dates
        LIMIT 1);
+
+# Также, возможный вариант решения данной задачи - партицирование. То есть выделить нужные нам данные (с датой больше
+# указанной) в отдельную секцию. Таким образом, блоки с датами, не входящими условиями, даже не будут начинать
+# читаться движком с диска.
+
+ALTER TABLE orders
+    PARTITION BY RANGE (TO_DAYS(`date`)) (
+        PARTITION `p0` VALUES LESS THAN (TO_DAYS('2021-01-01 00:00:00')),
+        PARTITION `p1` VALUES LESS THAN MAXVALUE
+        );
